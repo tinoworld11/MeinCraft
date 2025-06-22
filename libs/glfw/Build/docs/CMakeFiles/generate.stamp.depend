@@ -1,0 +1,5 @@
+# CMake generation dependency list for this directory.
+C:/Users/Gamer/Downloads/glfw-3.4/glfw-3.4/docs/CMakeLists.txt
+D:/CMake/share/cmake-4.0/Modules/FindDoxygen.cmake
+D:/CMake/share/cmake-4.0/Modules/FindPackageHandleStandardArgs.cmake
+D:/CMake/share/cmake-4.0/Modules/FindPackageMessage.cmake

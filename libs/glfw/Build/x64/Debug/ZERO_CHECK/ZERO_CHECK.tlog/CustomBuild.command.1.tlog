@@ -1,0 +1,10 @@
+^C:\USERS\GAMER\DOWNLOADS\GLFW-3.4\GLFW-3.4\BUILD\CMAKEFILES\ECF3058884F3563BBA1BEB10938ED299\GENERATE.STAMP.RULE
+setlocal
+D:\CMake\bin\cmake.exe -SC:/Users/Gamer/Downloads/glfw-3.4/glfw-3.4 -BC:/Users/Gamer/Downloads/glfw-3.4/glfw-3.4/Build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/Gamer/Downloads/glfw-3.4/glfw-3.4/Build/GLFW.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

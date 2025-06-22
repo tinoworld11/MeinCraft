@@ -1,0 +1,2 @@
+#pragma once
+#define logl_root "@CMAKE_SOURCE_DIR@"
