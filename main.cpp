@@ -15,6 +15,7 @@
 #include <iostream>
 #include "classes/Block/Block.h"
 #include <string>
+#include <iomanip>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -157,6 +158,9 @@ int main() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        std::cout << "\rfps: " << std::fixed << std::setprecision(1) << (1.0 / deltaTime) << std::flush;
+
+
         // input
         // -----
         processInput(window);
@@ -236,43 +240,49 @@ int main() {
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 model = glm::mat4(1.0f);
 
+        std::vector<float> world_vertices;
+        std::vector<unsigned int> world_indices;
+
         for (int x = -10; x < 10; x++)
             for (int y = 0; y < 10; y++)
                 for (int z = -10; z < 10; z++) {
-                    // view/projection transformations
+                    Block block;
 
-                    BlockShader.setMat4("projection", projection);
-                    BlockShader.setMat4("view", view);
-                    model = glm::mat4(1.0f);
-                    model = translate(model, glm::vec3(x, y, z));
-                    BlockShader.setMat4("model", model);
+                    std::vector<float> blockvertices = block.assemble_vertices({0,1,2,3,4,5});
 
-                    glActiveTexture(GL_TEXTURE0);
-                    glBindTexture(GL_TEXTURE_2D, diffuseMap);
-                    // bind specular map
-                    glActiveTexture(GL_TEXTURE1);
-                    glBindTexture(GL_TEXTURE_2D, specularMap);
+                    // Apply transform to vertices here (optional)
+                    for (size_t i = 0; i < blockvertices.size(); i += 8) {
+                        blockvertices[i + 0] += x; // x
+                        blockvertices[i + 1] += y; // y
+                        blockvertices[i + 2] += z; // z
+                    }
 
+                    std::vector<unsigned int> blockindices = block.assemble_indices({0,1,2,3,4,5});
+                    unsigned int vertexOffset = world_vertices.size() / 8;
 
-                    std::vector<float> blockvertices = Block().assemble_vertices({0,1,2,3,4,5});
-                    std::vector<unsigned int> blockindices = Block().assemble_indices({0,1,2,3,4,5});
-                    // Update vertex buffer data
-                    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-                    glBufferData(GL_ARRAY_BUFFER, blockvertices.size() * sizeof(float), blockvertices.data(), GL_DYNAMIC_DRAW);
+                    for (auto& index : blockindices)
+                        index += vertexOffset;
 
-                    // Update element buffer data
-                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                    glBufferData(GL_ELEMENT_ARRAY_BUFFER, blockindices.size() * sizeof(unsigned int), blockindices.data(), GL_DYNAMIC_DRAW);
-
-                    // Draw
-                    glBindVertexArray(BlockVao);
-                    glDrawElements(GL_TRIANGLES, blockindices.size(), GL_UNSIGNED_INT, 0);
-                    glBindVertexArray(0);
-
-
+                    world_vertices.insert(world_vertices.end(), blockvertices.begin(), blockvertices.end());
+                    world_indices.insert(world_indices.end(), blockindices.begin(), blockindices.end());
                 }
 
+        // Upload and draw
+        glBindVertexArray(BlockVao);
 
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, world_vertices.size() * sizeof(float), world_vertices.data(), GL_DYNAMIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, world_indices.size() * sizeof(unsigned int), world_indices.data(), GL_DYNAMIC_DRAW);
+
+        BlockShader.use();
+        BlockShader.setMat4("view", view);
+        BlockShader.setMat4("projection", projection);
+        BlockShader.setMat4("model", glm::mat4(1.0f)); // model baked into vertex
+
+        glDrawElements(GL_TRIANGLES, world_indices.size(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
 
 
