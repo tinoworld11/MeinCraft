@@ -14,6 +14,8 @@
 
 #include <iostream>
 #include "classes/Block/Block.h"
+#include <string>
+#include <iomanip>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -37,8 +39,9 @@ float lastFrame = 0.0f;
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
-int main()
-{
+std::string version = "1.0.1";
+
+int main() {
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -47,13 +50,13 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-    if (window == NULL)
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, ("MeinCraft:" + version).c_str(), nullptr, nullptr);
+    if (window == nullptr)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -85,63 +88,6 @@ int main()
     Shader lightCubeShader(FileSystem::getPath("Shaders/Light_source/vertex.glsl").c_str(), FileSystem::getPath("Shaders/Light_source/frag.glsl").c_str() );
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    float vertices[] = {
-        // positions          // normals           // texture coords
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
-
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
-    };
-    // positions all containers
-    glm::vec3 cubePositions[] = {
-        glm::vec3( 0.0f,  0.0f,  0.0f),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3( 1.3f, -2.0f, -2.5f),
-        glm::vec3( 1.5f,  2.0f, -2.5f),
-        glm::vec3( 1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
     // positions of the point lights
     glm::vec3 pointLightPositions[] = {
         glm::vec3( 0.7f,  0.2f,  2.0f),
@@ -150,25 +96,40 @@ int main()
         glm::vec3( 0.0f,  0.0f, -3.0f)
     };
     // first, configure the cube's VAO (and VBO)
-    unsigned int VBO, cubeVAO;
-    glGenVertexArrays(1, &cubeVAO);
+    unsigned int VBO, BlockVao, EBO;
+    glGenVertexArrays(1, &BlockVao);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
+    // Bind VAO first
+    glBindVertexArray(BlockVao);
+
+    // Bind and set VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
 
-    glBindVertexArray(cubeVAO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    // Bind and set EBO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
+
+    // Setup vertex attributes
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), static_cast<void *>(nullptr));
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+    // Unbind VAO (optional)
+    glBindVertexArray(0);
+
+
     // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
-    unsigned int lightCubeVAO;
-    glGenVertexArrays(1, &lightCubeVAO);
-    glBindVertexArray(lightCubeVAO);
+    unsigned int lightBlockVao;
+    glGenVertexArrays(1, &lightBlockVao);
+    glBindVertexArray(lightBlockVao);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // note that we update the lamp's position attribute's stride to reflect the updated buffer data
@@ -178,7 +139,7 @@ int main()
     // load textures (we now use a utility function to keep the code more organized)
     // -----------------------------------------------------------------------------
 
-    unsigned int diffuseMap = loadTexture(FileSystem::getPath("resources/textures/stone.png").c_str());
+    unsigned int diffuseMap = loadTexture(FileSystem::getPath("resources/textures/pack.png").c_str());
     unsigned int specularMap = loadTexture(FileSystem::getPath("resources/textures/specular.png").c_str());
 
     // shader configuration
@@ -190,13 +151,15 @@ int main()
 
     // render loop
     // -----------
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
         // --------------------
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+
+        std::cout << "\rfps: " << std::fixed << std::setprecision(1) << (1.0 / deltaTime) << std::flush;
+
 
         // input
         // -----
@@ -204,13 +167,13 @@ int main()
 
         // render
         // ------
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor( 0.3608f, 0.7137f, 1.0f, 1.0f );
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // be sure to activate shader when setting uniforms/drawing objects
         BlockShader.use();
         BlockShader.setVec3("viewPos", camera.Position);
-        BlockShader.setFloat("material.shininess", 32.0f);
+        BlockShader.setFloat("material.shininess", 1.0f);
 
         /*
            Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index
@@ -218,6 +181,12 @@ int main()
            by defining light types as classes and set their values in there, or by using a more efficient uniform approach
            by using 'Uniform buffer objects', but that is something we'll discuss in the 'Advanced GLSL' tutorial.
         */
+        // sky setup
+        float inGameTime = fmod(glfwGetTime() / 10.0f, 1.0f);
+        BlockShader.setFloat("Sky.time", inGameTime);
+        BlockShader.setVec3("dirLight.ambient", glm::vec3(0.1f, 0.1, 0.1f));
+        BlockShader.setVec3("dirLight.diffuse", glm::vec3(0.4f, 0.4f, 0.4f));
+        BlockShader.setVec3("dirLight.specular", glm::vec3(0.5f, 0.5f, 0.5f));
         // directional light
         BlockShader.setVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
         BlockShader.setVec3("dirLight.ambient", glm::vec3(0.05f, 0.05f, 0.05f));
@@ -267,35 +236,56 @@ int main()
         BlockShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
         BlockShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
-        // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
-        BlockShader.setMat4("projection", projection);
-        BlockShader.setMat4("view", view);
-
-        // world transformation
         glm::mat4 model = glm::mat4(1.0f);
-        BlockShader.setMat4("model", model);
 
-        // bind diffuse map
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap);
-        // bind specular map
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, specularMap);
+        std::vector<float> world_vertices;
+        std::vector<unsigned int> world_indices;
 
-        // render containers
-        glBindVertexArray(cubeVAO);
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            // calculate the model matrix for each object and pass it to shader before drawing
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            BlockShader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        for (int x = -10; x < 10; x++)
+            for (int y = 0; y < 10; y++)
+                for (int z = -10; z < 10; z++) {
+                    Block block;
+
+                    std::vector<float> blockvertices = block.assemble_vertices({0,1,2,3,4,5});
+
+                    // Apply transform to vertices here (optional)
+                    for (size_t i = 0; i < blockvertices.size(); i += 8) {
+                        blockvertices[i + 0] += x; // x
+                        blockvertices[i + 1] += y; // y
+                        blockvertices[i + 2] += z; // z
+                    }
+
+                    std::vector<unsigned int> blockindices = block.assemble_indices({0,1,2,3,4,5});
+                    unsigned int vertexOffset = world_vertices.size() / 8;
+
+                    for (auto& index : blockindices)
+                        index += vertexOffset;
+
+                    world_vertices.insert(world_vertices.end(), blockvertices.begin(), blockvertices.end());
+                    world_indices.insert(world_indices.end(), blockindices.begin(), blockindices.end());
+                }
+
+        // Upload and draw
+        glBindVertexArray(BlockVao);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, world_vertices.size() * sizeof(float), world_vertices.data(), GL_DYNAMIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, world_indices.size() * sizeof(unsigned int), world_indices.data(), GL_DYNAMIC_DRAW);
+
+        BlockShader.use();
+        BlockShader.setMat4("view", view);
+        BlockShader.setMat4("projection", projection);
+        BlockShader.setMat4("model", glm::mat4(1.0f)); // model baked into vertex
+
+        glDrawElements(GL_TRIANGLES, world_indices.size(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+
+
+
 
          // also draw the lamp object(s)
          lightCubeShader.use();
@@ -303,9 +293,10 @@ int main()
          lightCubeShader.setMat4("view", view);
 
          // we now draw as many light bulbs as we have point lights.
-         glBindVertexArray(lightCubeVAO);
+         glBindVertexArray(lightBlockVao);
          for (unsigned int i = 0; i < 4; i++)
          {
+
              model = glm::mat4(1.0f);
              model = glm::translate(model, pointLightPositions[i]);
              model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
@@ -322,8 +313,8 @@ int main()
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
-    glDeleteVertexArrays(1, &cubeVAO);
-    glDeleteVertexArrays(1, &lightCubeVAO);
+    glDeleteVertexArrays(1, &BlockVao);
+    glDeleteVertexArrays(1, &lightBlockVao);
     glDeleteBuffers(1, &VBO);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
@@ -413,8 +404,8 @@ unsigned int loadTexture(char const * path)
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         stbi_image_free(data);
     }
