@@ -82,7 +82,8 @@ inline std::vector<unsigned int> base_indices = {
 
 class Block {
 public:
- glm::vec3 position;
+ glm::vec3 chunk_position;
+ glm::vec3 world_position;
 
   std::vector<float> assemble_vertices(std::vector<unsigned int> visible_faces);
   std::vector<unsigned int> assemble_indices(std::vector<unsigned int> visible_faces);
