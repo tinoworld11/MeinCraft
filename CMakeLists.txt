@@ -16,6 +16,8 @@ add_executable(MeinCraft
         include/stb_image.h
         classes/Block/Block.cpp
         classes/Block/Block.h
+        classes/Chunk/Chunk.cpp
+        classes/Chunk/Chunk.h
 )
 
 # Include directories

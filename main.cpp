@@ -16,6 +16,9 @@
 #include "classes/Block/Block.h"
 #include <string>
 #include <iomanip>
+#include <vector>
+
+#include "classes/Chunk/Chunk.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -144,13 +147,19 @@ int main() {
 
     // shader configuration
     // --------------------
+
     BlockShader.use();
     BlockShader.setInt("material.diffuse", 0);
     BlockShader.setInt("material.specular", 1);
+    glDisable(GL_CULL_FACE);
 
+    std::vector<Chunk> chunks;
+    Chunk tempChunk;
+    tempChunk.Generate();
+    chunks.push_back(tempChunk);
 
-    // render loop
-    // -----------
+    camera.Position = glm::vec3(0.0f, 0.0f, 40.0f);
+
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
         // --------------------
@@ -158,7 +167,7 @@ int main() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        std::cout << "\rfps: " << std::fixed << std::setprecision(1) << (1.0 / deltaTime) << std::flush;
+        //std::cout << "\rfps: " << std::fixed << std::setprecision(1) << (1.0 / deltaTime) << std::flush;
 
 
         // input
@@ -172,16 +181,12 @@ int main() {
 
         // be sure to activate shader when setting uniforms/drawing objects
         BlockShader.use();
+        //std::cout << camera.Position.x << "," << camera.Position.y << "," << camera.Position.z << std::endl;
         BlockShader.setVec3("viewPos", camera.Position);
         BlockShader.setFloat("material.shininess", 1.0f);
 
-        /*
-           Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index
-           the proper PointLight struct in the array to set each uniform variable. This can be done more code-friendly
-           by defining light types as classes and set their values in there, or by using a more efficient uniform approach
-           by using 'Uniform buffer objects', but that is something we'll discuss in the 'Advanced GLSL' tutorial.
-        */
         // sky setup
+
         float inGameTime = fmod(glfwGetTime() / 10.0f, 1.0f);
         BlockShader.setFloat("Sky.time", inGameTime);
         BlockShader.setVec3("dirLight.ambient", glm::vec3(0.1f, 0.1, 0.1f));
@@ -237,57 +242,50 @@ int main() {
         BlockShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
-        glm::mat4 model = glm::mat4(1.0f);
-
-        std::vector<float> world_vertices;
-        std::vector<unsigned int> world_indices;
-
-        for (int x = -10; x < 10; x++)
-            for (int y = 0; y < 10; y++)
-                for (int z = -10; z < 10; z++) {
-                    Block block;
-
-                    std::vector<float> blockvertices = block.assemble_vertices({0,1,2,3,4,5});
-
-                    // Apply transform to vertices here (optional)
-                    for (size_t i = 0; i < blockvertices.size(); i += 8) {
-                        blockvertices[i + 0] += x; // x
-                        blockvertices[i + 1] += y; // y
-                        blockvertices[i + 2] += z; // z
-                    }
-
-                    std::vector<unsigned int> blockindices = block.assemble_indices({0,1,2,3,4,5});
-                    unsigned int vertexOffset = world_vertices.size() / 8;
-
-                    for (auto& index : blockindices)
-                        index += vertexOffset;
-
-                    world_vertices.insert(world_vertices.end(), blockvertices.begin(), blockvertices.end());
-                    world_indices.insert(world_indices.end(), blockindices.begin(), blockindices.end());
-                }
-
-        // Upload and draw
-        glBindVertexArray(BlockVao);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, world_vertices.size() * sizeof(float), world_vertices.data(), GL_DYNAMIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, world_indices.size() * sizeof(unsigned int), world_indices.data(), GL_DYNAMIC_DRAW);
-
-        BlockShader.use();
-        BlockShader.setMat4("view", view);
-        BlockShader.setMat4("projection", projection);
-        BlockShader.setMat4("model", glm::mat4(1.0f)); // model baked into vertex
-
-        glDrawElements(GL_TRIANGLES, world_indices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        mat4 view = camera.GetViewMatrix();
+        auto model = glm::mat4(1.0f);
 
 
+        for (int i = 0;i < chunks.size(); i++) {
+            Chunk& chunk = chunks[i];
+            Chunk_Mesh mesh;
+            if (chunk.has_mesh == true) {
+                std::cout << chunk.has_mesh << std::endl;
+            }else
+                std::cout << chunk.has_mesh << std::endl;
+
+
+            if (chunk.has_mesh)
+                mesh = chunk.Stored_mesh;
+            else {
+                mesh = chunk.Assemble_Mesh();
+                std::cout << "Called mesh assembly" << std::endl;
+            }
+            glBindVertexArray(BlockVao);
+
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(float), mesh.vertices.data(), GL_DYNAMIC_DRAW);
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof(unsigned int), mesh.indices.data(), GL_DYNAMIC_DRAW);
+
+            BlockShader.use();
+            BlockShader.setMat4("view", view);
+            BlockShader.setMat4("projection", projection);
+            BlockShader.setMat4("model", glm::mat4(1.0f)); // model baked into vertex
+            std::cout << "Vertices count: " << mesh.vertices.size() / 8 << std::endl;
+            std::cout << "Indices count: " << mesh.indices.size() << std::endl;
+
+            glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
+
+            glBindVertexArray(0);
+
+
+        }
 
 
          // also draw the lamp object(s)
+        /*
          lightCubeShader.use();
          lightCubeShader.setMat4("projection", projection);
          lightCubeShader.setMat4("view", view);
@@ -300,10 +298,10 @@ int main() {
              model = glm::mat4(1.0f);
              model = glm::translate(model, pointLightPositions[i]);
              model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
-             lightCubeShader.setMat4("model", model);
+             //lightCubeShader.setMat4("model", model);
              glDrawArrays(GL_TRIANGLES, 0, 36);
          }
-
+        */
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

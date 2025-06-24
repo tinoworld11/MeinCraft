@@ -9,9 +9,17 @@
 
 
 std::vector<float> Block::assemble_vertices(std::vector<unsigned int> visible_faces) {
+	std::vector<float> faces = base_faces;
 
-	return base_faces;
+	for (size_t i = 0; i < faces.size(); i += 8) {
+		faces[i + 0] += chunk_position.x; // x
+		faces[i + 1] += chunk_position.y; // y
+		faces[i + 2] += chunk_position.z; // z
+	}
+
+	return faces;
 }
+
 
 std::vector<unsigned int> Block::assemble_indices(std::vector<unsigned int> visible_faces) {
 	std::vector<unsigned int> indices;
@@ -24,6 +32,5 @@ std::vector<unsigned int> Block::assemble_indices(std::vector<unsigned int> visi
 			indices.insert(indices.end(), base_indices.begin() + i * 6, base_indices.begin() + i * 6 + 6);
 		}
 	}
-
 	return  indices;
 }
