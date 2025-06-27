@@ -12,18 +12,23 @@
 #include <unordered_map>
 
 enum class BlockType {
- Stone
+ Stone,
+ Dirt,
+ Grass,
 };
 
 struct BlockInfo {
  const char* name;
  float durability;
  bool usespecular;
- const char* texturePath;
+ glm::vec2 Atlas_coordinate;
+ glm::vec3 direction = glm::vec3(0.0f);
 };
 
 const std::unordered_map<BlockType, BlockInfo> BlockDatabase = {
- { BlockType::Stone, { "Stone", 3.0f,false, "resources/textures/stone.png" } },
+ { BlockType::Stone, { "Stone", 3.0f,false, glm::vec2(1.f,0.f)}},
+    {BlockType::Dirt,{"Dirt",0.4f,false,glm::vec2(2.f,0.f)}},
+ {BlockType::Grass,{"Grass",0.5f,false,glm::vec2(3.f,0.f),glm::vec3(0,1,0)}}
 };
 
 inline std::vector<float> base_faces = {
@@ -84,9 +89,10 @@ class Block {
 public:
  glm::vec3 chunk_position;
  glm::vec3 world_position;
-
-  std::vector<float> assemble_vertices(std::vector<unsigned int> visible_faces);
-  std::vector<unsigned int> assemble_indices(std::vector<unsigned int> visible_faces);
+ BlockType type;
+ bool solid = true;
+  std::vector<float> assemble_vertices(std::vector<int> visible_faces);
+  std::vector<unsigned int> assemble_indices(std::vector<int> visible_faces);
 
 
 };

@@ -73,8 +73,8 @@ float baseambient = 0.6;
 
 void main()
 {
-    float lightingResolution = 1f;
-    vec3 pixelatedFragPos = floor(FragPos / lightingResolution) * lightingResolution;
+    float lightingResolution = 0.5f;
+    vec3 pixelatedFragPos = ceil(FragPos / lightingResolution) * lightingResolution;
     // properties
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - pixelatedFragPos);
