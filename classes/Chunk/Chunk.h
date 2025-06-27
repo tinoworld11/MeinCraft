@@ -29,6 +29,7 @@ class Chunk {
 
 		void Generate();
 		Chunk_Mesh Assemble_Mesh();
+		bool GetBlockAt(glm::ivec3 pos) const;
 
 };
 

@@ -85,7 +85,7 @@ int main() {
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
-    // build and compile our shader zprogram
+    // build and compile our shader program
     // ------------------------------------
     Shader BlockShader((FileSystem::getPath("Shaders/Block/vertex.glsl").c_str()), FileSystem::getPath("Shaders/Block/frag.glsl").c_str());
     Shader lightCubeShader(FileSystem::getPath("Shaders/Light_source/vertex.glsl").c_str(), FileSystem::getPath("Shaders/Light_source/frag.glsl").c_str() );
@@ -142,8 +142,7 @@ int main() {
     // load textures (we now use a utility function to keep the code more organized)
     // -----------------------------------------------------------------------------
 
-    unsigned int diffuseMap = loadTexture(FileSystem::getPath("resources/textures/pack.png").c_str());
-    unsigned int specularMap = loadTexture(FileSystem::getPath("resources/textures/specular.png").c_str());
+    unsigned int texture_atlas = loadTexture(FileSystem::getPath("resources/textures/atlas.png").c_str());
 
     // shader configuration
     // --------------------
@@ -158,8 +157,10 @@ int main() {
     tempChunk.Generate();
     chunks.push_back(tempChunk);
 
-    camera.Position = glm::vec3(0.0f, 0.0f, 40.0f);
+    camera.Position = glm::vec3(0.0f, 5.0f, 40.0f);
 
+
+    glBindTexture(GL_TEXTURE_2D, texture_atlas);
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
         // --------------------
@@ -249,17 +250,13 @@ int main() {
         for (int i = 0;i < chunks.size(); i++) {
             Chunk& chunk = chunks[i];
             Chunk_Mesh mesh;
-            if (chunk.has_mesh == true) {
-                std::cout << chunk.has_mesh << std::endl;
-            }else
-                std::cout << chunk.has_mesh << std::endl;
 
 
             if (chunk.has_mesh)
                 mesh = chunk.Stored_mesh;
             else {
                 mesh = chunk.Assemble_Mesh();
-                std::cout << "Called mesh assembly" << std::endl;
+                //std::cout << "Called mesh assembly" << std::endl;
             }
             glBindVertexArray(BlockVao);
 
@@ -336,6 +333,10 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.ProcessKeyboard(UP, deltaTime* 4);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        camera.ProcessKeyboard(DOWN, deltaTime * 4);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -381,6 +382,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 // ---------------------------------------------------
 unsigned int loadTexture(char const * path)
 {
+    stbi_set_flip_vertically_on_load(true);
     unsigned int textureID;
     glGenTextures(1, &textureID);
 
